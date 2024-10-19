@@ -12,13 +12,9 @@
 - [ ] Sonarqube server with 4 GB memory - t2.medium
 
 ## Step 1: Ensure all the necessary plugins are installed in Jenkins Master
-- [ ] Git plugin, JDK plugin
 - [ ] Parameterized trigger plugin
-- [ ] Ansible plugin
 - [ ] Gitlab plugin
-- [ ] Artifactory plugin
 - [ ] Docker Pipeline
-- [ ] Amazon ECR Plugin
 - [ ] Pipeline: AWS steps
 - [ ] SonarQube Scanner
 - [ ] Quality Gates
@@ -39,7 +35,7 @@ $ sudo docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 ## Step 4: Add necessary credentials
 - [ ] Generate Sonarqube token of type "global analysis token" and add it as Jenkins credential of type "secret text"
 - [ ] Add dockerhub credentials as username/password type
-- [ ] Add AWS credentials 
+- [ ] Add Gitlab credentials 
 - [ ] Add Build server credentials for Jenkins master to connect
 
 ## Step 5: Enable Sonarqube webhook for Quality Gates & Install dependency-check plugin
