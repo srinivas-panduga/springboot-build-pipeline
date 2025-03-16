@@ -1,0 +1,89 @@
+stages:
+  - dev_build
+  - dev_test
+  - dev_security
+  - docker_build
+  - staging_deploy
+  - staging_test
+  - staging_performance
+  - staging_security
+  - preprod_deploy
+  - preprod_test
+  - preprod_canary
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+# 🛠️ Dev Environment (Fast Feedback)
+dev_build:
+  stage: dev_build
+  image: maven:3.8.4-openjdk-17
+  script:
+    - echo "Building Spring Boot App..."
+    - mvn clean package
+  artifacts:
+    paths:
+      - target/*.jar
+
+code_coverage:
+  stage: dev_test
+  script:
+    - echo "Running Code Coverage with JaCoCo..."
+    - mvn jacoco:prepare-agent test jacoco:report
+
+sast:
+  stage: dev_security
+  image: sonarsource/sonar-scanner-cli
+  script:
+    - echo "Running SAST with SonarQube..."
+    - sonar-scanner -Dsonar.projectKey=myproject -Dsonar.sources=src -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN
+
+dependency_scan:
+  stage: dev_security
+  script:
+    - echo "Running Dependency Scanning..."
+    - mvn org.owasp:dependency-check-maven:check
+
+# 🔹 Docker Build & Push
+docker_build:
+  stage: docker_build
+  script:
+    - echo "Building Docker Image..."
+    - docker build -t adamtravis/democicd .
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push adamtravis/democicd
+
+# 🚀 Staging Environment
+staging_deploy:
+  stage: staging_deploy
+  script:
+    - echo "Deploying to Staging..."
+    - docker run -d -p 8080:8080 adamtravis/democicd
+
+staging_test:
+  stage: staging_test
+  script:
+    - echo "Running Functional & API Tests..."
+    - mvn verify -Dgroups=functional
+
+dast:
+  stage: staging_security
+  image: owasp/zap2docker-stable
+  script:
+    - echo "Running DAST in Staging..."
+    - zap-baseline.py -t http://staging.myapp.com -r zap_report.html
+
+# 🔥 Preprod Environment
+preprod_deploy:
+  stage: preprod_deploy
+  script:
+    - echo "Deploying to Preprod..."
+    - docker run -d -p 8080:8080 adamtravis/democicd
+
+preprod_canary:
+  stage: preprod_canary
+  script:
+    - echo "Rolling out Canary Deployment..."
+    - echo "Deploying to 10% of users first..."
+  only:
+    - preprod
