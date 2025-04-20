@@ -70,7 +70,7 @@ pipeline {
     stage('Stage IX: Trigger Deployment'){
       steps { 
        script {
-        TAG = "$BUILD_NUMBER"
+        TAG = "int$BUILD_NUMBER"
          echo "Trigger CD Pipeline"
           build wait: false, job: 'WEZVATECH-SAMPLE-DEPLOYMENT-PIPELINE', parameters: [string(name: 'IMAGETAG', value: TAG), string(name: 'environment', value: 'integration')]
        }
