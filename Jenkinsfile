@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'feature', credentialsId: 'GitlabCred', url: 'https://gitlab.com/learndevopseasy/devsecops/springboot-build-pipeline.git'
+        git branch: 'release', credentialsId: 'GitlabCred', url: 'https://gitlab.com/learndevopseasy/devsecops/springboot-build-pipeline.git'
       }
     }
   
@@ -48,7 +48,7 @@ pipeline {
         echo "Build Docker Image"
         script {
                docker.withRegistry( '', registryCredential ) { 
-                 myImage = docker.build registry + ":fb$BUILD_NUMBER" 
+                 myImage = docker.build registry + ":rel$BUILD_NUMBER" 
                  myImage.push()
                 }
         }
@@ -70,7 +70,7 @@ pipeline {
     stage('Stage IX: Trigger Deployment'){
       steps { 
        script {
-        TAG = "fb$BUILD_NUMBER"
+        TAG = "rel$BUILD_NUMBER"
          echo "Trigger CD Pipeline"
           build wait: false, job: 'WEZVATECH-SAMPLE-DEPLOYMENT-PIPELINE', parameters: [string(name: 'IMAGETAG', value: TAG), string(name: 'environment', value: 'functional')]
        }
