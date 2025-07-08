@@ -1,9 +1,9 @@
 #!/bin/bash
 
-curl -is --max-redirs 10 http://localhost:8080 -L | grep -w "HTTP/1.1 200" > /dev/null
+curl -is --max-redirs 10 http://localhost:4000 -L | grep -w "HTTP/1.1 200" > /dev/null
 if [ $? -ne "0" ]; then
    echo "============================================================="
-   echo "Unable to reach sample springboot application on port 8080 !!"
+   echo "Unable to reach sample springboot application on port 4000 !!"
    echo "============================================================="
 else
    echo "================="

@@ -1,15 +1,15 @@
 
 pipeline {
-  agent { label 'build' }
+  agent any
    environment { 
-        registry = "adamtravis/democicd" 
+        registry = "msrdevops/wezva" 
         registryCredential = 'dockerhub' 
    }
 
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'main', credentialsId: 'GitlabCred', url: 'https://gitlab.com/learndevopseasy/devsecops/springboot-build-pipeline.git'
+        git branch: 'main', credentialsId: 'GitlabCred', url: 'https://github.com/kiransai00794/wez.git'
       }
     }
   
@@ -22,7 +22,7 @@ pipeline {
 
    stage('Stage II: Code Coverage ') {
       steps {
-	    echo "Running Code Coverage ..."
+        echo "Running Code Coverage ..."
         sh "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64; mvn jacoco:report"
       }
     }
@@ -47,7 +47,7 @@ pipeline {
       steps { 
         echo "Running Quality Gates to verify the code quality"
         script {
-          timeout(time: 1, unit: 'MINUTES') {
+          timeout(time: 10, unit: 'MINUTES') {
             def qg = waitForQualityGate()
             if (qg.status != 'OK') {
               error "Pipeline aborted due to quality gate failure: ${qg.status}"
@@ -79,7 +79,7 @@ pipeline {
    stage('Stage VIII: Smoke Test ') {
       steps { 
         echo "Smoke Test the Image"
-        sh "docker run -d --name smokerun -p 8080:8080 adamtravis/democicd"
+        sh "docker run -d --name smokerun -p 4000:8080 msrdevops/wezva"
         sh "sleep 90; ./check.sh"
         sh "docker rm --force smokerun"
         }
